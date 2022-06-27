@@ -1,4 +1,4 @@
-import { createWriteStream } from 'fs-extra'
+import { createWriteStream } from 'fs'
 import { resolve } from 'path'
 import archiver from 'archiver'
 import globby from 'globby'
