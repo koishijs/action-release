@@ -19,3 +19,28 @@ jobs:
         run: yarn
       - name: Build
         run: yarn build
+      - name: Move manifest
+        run: mv action.yml dist/action.yml
+      - id: version
+        name: Get version
+        run: |
+          REF = refs/tags/v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
+          echo "::set-output name=ref::$REF"
+      - id: tag
+        name: Get tag
+        uses: octokit/graphql-action@v2
+        with:
+          query: |
+            query {
+              repository($owner: String!, $repo: String!) {
+                ref(qualifiedName: $ref) {
+                  
+                }
+              }
+            }
+          owner: ${{ github.event.repository.owner.name }}
+          repo: ${{ github.event.repository.name }}
+          ref: ${{ steps.version.outputs.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: "echo 'tag: ${{ steps.tag.outputs.data }}'"
