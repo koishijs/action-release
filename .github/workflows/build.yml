@@ -52,7 +52,8 @@ jobs:
           publish_dir: dist
           publish_branch: dist
           force_orphan: true
-          # tag_name: ${{ steps.version.outputs.tag }}
+          enable_jekyll: true
+          tag_name: ${{ steps.version.outputs.tag }}
 
       - name: Output
-        run: echo ${{ steps.deploy.outputs }}
+        run: git log dist -1 --pretty=%H
