@@ -21,11 +21,13 @@ jobs:
         run: yarn build
       - name: Move manifest
         run: mv action.yml dist/action.yml
+
       - id: version
         name: Get version
         run: |
-          REF=refs/tags/v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
-          echo "::set-output name=ref::$REF"
+          TAG=v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
+          echo "::set-output name=tag::$TAG"
+
       - id: tag
         name: Get tag
         uses: octokit/graphql-action@v2.x
@@ -33,11 +35,20 @@ jobs:
           query: |
             query {
               repository(owner: "${{ github.event.repository.owner.name }}", name: "${{ github.event.repository.name }}") {
-                ref(qualifiedName: "${{ steps.version.outputs.ref }}") {
+                ref(qualifiedName: "refs/tags/${{ steps.version.outputs.tag }}") {
                   name
                 }
               }
             }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo 'tag: ${{ steps.tag.outputs.data }}'"
+
+      - name: Deploy
+        if: ${{ !fromJSON(steps.tag.outputs.data).repository.ref }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          publish_branch: dist
+          force_orphan: true
+          tag_name: ${{ steps.version.outputs.tag }}
