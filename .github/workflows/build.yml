@@ -11,14 +11,18 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v3
+
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 16
+
       - name: Install
         run: yarn
+
       - name: Build
         run: yarn build
+
       - name: Move manifest
         run: mv action.yml dist/action.yml
 
@@ -27,8 +31,9 @@ jobs:
         run: |
           RAW=v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
           REG=^$(echo $RAW | sed 's/\./\\./g')$
-          TAG=$([ -z "$(git tag -l | grep -E $REG)" ] || echo "$RAW")
-          echo "::set-output name=tag::$TAG"
+          NEW=$([ -z "$(git tag -l | grep -E $REG)" ] && echo "$RAW")
+          echo "::set-output name=tag::$RAW"
+          echo "::set-output name=new::$NEW"
 
       - id: deploy
         name: Deploy
@@ -39,7 +44,32 @@ jobs:
           publish_branch: dist
           force_orphan: true
           enable_jekyll: true
-          tag_name: ${{ steps.version.outputs.tag }}
+          tag_name: ${{ steps.version.outputs.new }}
 
-      - name: Output
-        run: git log -1 --pretty=%H dist
+      - name: Check out dist
+        uses: actions/checkout@v3
+        with:
+          ref: dist
+
+      - name: Set user identity
+        run: |
+          git config user.email "GitHub Actions"
+          git config user.name "actions@github.com"
+
+      - name: Track minor
+        if: ${{ steps.version.outputs.new }}
+        run: |
+          RAW=$(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1,2)
+          REG=^$(echo $RAW | sed 's/\./\\./g')$
+          [ -z "$(git tag -l | grep -E $REG)" ] || git tag -d $RAW
+          git tag -a $RAW -m "Tracking $RAW"
+          git push origin --tags
+
+      - name: Track major
+        if: ${{ steps.version.outputs.new }}
+        run: |
+          RAW=$(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1)
+          REG=^$(echo $RAW | sed 's/\./\\./g')$
+          [ -z "$(git tag -l | grep -E $REG)" ] || git tag -d $RAW
+          git tag -a $RAW -m "Tracking $RAW"
+          git push origin --tags
