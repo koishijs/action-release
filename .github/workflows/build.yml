@@ -42,4 +42,4 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
 
       - name: Output
-        run: git log dist -1 --pretty=%H
+        run: git log -1 --pretty=%H dist
