@@ -34,7 +34,7 @@ jobs:
             query {
               repository(owner: "${{ github.event.repository.owner.name }}", repo: "${{ github.event.repository.name }}") {
                 ref(qualifiedName: "${{ steps.version.outputs.ref }}") {
-
+                  name
                 }
               }
             }
