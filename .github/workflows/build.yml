@@ -27,7 +27,7 @@ jobs:
 
       - id: version
         name: Get version
-        run: ./version.sh
+        run: bash version.sh
 
       - name: Move manifest
         run: |
@@ -54,6 +54,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set user identity
+        if: ${{ steps.version.outputs.new }}
         run: |
           git config user.email "GitHub Actions"
           git config user.name "actions@github.com"

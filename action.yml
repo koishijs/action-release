@@ -5,8 +5,10 @@ runs:
   using: composite
   steps:
     - id: version
-      run: ./version.sh
+      shell: bash
+      run: bash $GITHUB_ACTION_PATH/version.sh
 
     - id: pack
       if: ${{ steps.version.outputs.new }}
-      run: node index.js
+      shell: bash
+      run: node $GITHUB_ACTION_PATH/index.js
