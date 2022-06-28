@@ -27,12 +27,11 @@ jobs:
 
       - id: version
         name: Get version
-        run: bash version.sh
+        run: bash build/version.sh
 
       - name: Move manifest
         run: |
           mv action.yml dist/action.yml
-          mv version.sh dist/version.sh
 
       - id: deploy
         name: Deploy
@@ -45,7 +44,7 @@ jobs:
           enable_jekyll: true
           user_name: GitHub Actions
           user_email: actions@github.com
-          tag_name: ${{ steps.version.outputs.new }}
+          tag_name: ${{ steps.version.outputs.tag }}
 
       - name: Check out latest
         uses: actions/checkout@v3
@@ -54,25 +53,14 @@ jobs:
           fetch-depth: 0
 
       - name: Set user identity
-        if: ${{ steps.version.outputs.new }}
+        if: ${{ steps.version.outputs.tag }}
         run: |
           git config user.email "GitHub Actions"
           git config user.name "actions@github.com"
 
-      - name: Track minor
-        if: ${{ steps.version.outputs.new }}
+      - name: Track versions
+        if: ${{ steps.version.outputs.tag }}
         run: |
-          RAW=$(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1,2)
-          REG=^$(echo $RAW | sed 's/\./\\./g')$
-          [ -z "$(git tag -l | grep -E $REG)" ] || git tag -d $RAW
-          git tag -a $RAW -m "Tracking $RAW"
-          git push origin --tags
-
-      - name: Track major
-        if: ${{ steps.version.outputs.new }}
-        run: |
-          RAW=$(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1)
-          REG=^$(echo $RAW | sed 's/\./\\./g')$
-          [ -z "$(git tag -l | grep -E $REG)" ] || git tag -d $RAW
-          git tag -a $RAW -m "Tracking $RAW"
+          bash build/track.sh $(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1,2)
+          bash build/track.sh $(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1)
           git push origin --tags

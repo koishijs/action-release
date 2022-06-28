@@ -1,10 +1,13 @@
 import { context, getOctokit } from '@actions/github'
+import { getInput } from '@actions/core'
 import { createReadStream } from 'fs'
 import { resolve } from 'path'
 import manifest from './shared'
 
+const token = getInput('github_token', { required: true })
+
 const { repo, sha } = context
-const octokit = getOctokit(process.env.GITHUB_TOKEN)
+const octokit = getOctokit(token)
 
 export default async function release() {
   const tag = `v${manifest.version}`

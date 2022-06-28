@@ -1,17 +1,18 @@
 {
   "name": "release-koishi-bot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "license": "MIT",
   "author": "Shigma <shigma10826@gmail.com>",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --minify --platform=node --target=node16 --outdir=dist"
+    "build": "esbuild src/index.ts --bundle --sourcemap --platform=node --target=node16 --outdir=dist"
   },
   "dependencies": {
     "archiver": "^5.3.1",
     "globby": "^11.1.0"
   },
   "devDependencies": {
+    "@actions/core": "^1.9.0",
     "@actions/github": "^5.0.3",
     "@types/archiver": "^5.3.1",
     "@types/node": "^17.0.35",

@@ -1,14 +1,11 @@
 name: Release Koishi Bot
 description: Pack and release your Koishi bot
 
-runs:
-  using: composite
-  steps:
-    - id: version
-      shell: bash
-      run: bash $GITHUB_ACTION_PATH/version.sh
+inputs:
+  github_token:
+    description: Set a generated GITHUB_TOKEN for pushing to the remote branch.
+    required: true
 
-    - id: pack
-      if: ${{ steps.version.outputs.new }}
-      shell: bash
-      run: node $GITHUB_ACTION_PATH/index.js
+runs:
+  using: node16
+  main: index.js
