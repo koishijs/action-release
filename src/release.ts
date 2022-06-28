@@ -1,8 +1,8 @@
 import { context, getOctokit } from '@actions/github'
 import { getInput } from '@actions/core'
-import { createReadStream } from 'fs'
 import { resolve } from 'path'
 import manifest from './shared'
+import { readFile } from 'fs/promises'
 
 const token = getInput('github_token', { required: true })
 
@@ -11,22 +11,24 @@ const octokit = getOctokit(token)
 
 export default async function release() {
   const tag = `v${manifest.version}`
-  await octokit.rest.git.createTag({
+  const { data } = await octokit.rest.git.createTag({
     ...repo,
     tag,
     message: `Release ${manifest.version}`,
     object: sha,
     type: 'commit',
   })
+  console.log(data)
   const { data: release } = await octokit.rest.repos.createRelease({
     ...repo,
     tag_name: tag,
   })
+  console.log(release)
   await octokit.rest.repos.uploadReleaseAsset({
     ...repo,
     release_id: release.id,
     name: tag,
-    data: createReadStream(resolve(process.env.RUNNER_TEMP, 'bundle.zip')) as any,
+    data: await readFile(resolve(process.env.RUNNER_TEMP, 'bundle.zip')) as any,
   })
 }
 
