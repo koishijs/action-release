@@ -32,15 +32,12 @@ jobs:
         with:
           query: |
             query {
-              repository($owner: String!, $repo: String!) {
-                ref(qualifiedName: $ref) {
+              repository($owner: ${{ github.event.repository.owner.name }}, $repo: ${{ github.event.repository.name }}) {
+                ref(qualifiedName: ${{ steps.version.outputs.ref }}) {
 
                 }
               }
             }
-          owner: ${{ github.event.repository.owner.name }}
-          repo: ${{ github.event.repository.name }}
-          ref: ${{ steps.version.outputs.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: "echo 'tag: ${{ steps.tag.outputs.data }}'"
