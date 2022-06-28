@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v3
+        with:
+          depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -23,14 +25,14 @@ jobs:
       - name: Build
         run: yarn build
 
+      - id: version
+        name: Get version
+        run: version.sh
+
       - name: Move manifest
         run: |
           mv action.yml dist/action.yml
-          mv src/version.sh dist/version.sh
-
-      - id: version
-        name: Get version
-        run: src/version.sh
+          mv version.sh dist/version.sh
 
       - id: deploy
         name: Deploy
@@ -49,6 +51,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: dist
+          depth: 0
 
       - name: Set user identity
         run: |
