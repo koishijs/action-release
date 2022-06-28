@@ -28,13 +28,13 @@ jobs:
           echo "::set-output name=ref::$REF"
       - id: tag
         name: Get tag
-        uses: octokit/graphql-action@v2
+        uses: octokit/graphql-action@v2.x
         with:
           query: |
             query {
               repository($owner: String!, $repo: String!) {
                 ref(qualifiedName: $ref) {
-                  
+
                 }
               }
             }
