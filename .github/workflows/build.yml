@@ -24,16 +24,13 @@ jobs:
         run: yarn build
 
       - name: Move manifest
-        run: mv action.yml dist/action.yml
+        run: |
+          mv action.yml dist/action.yml
+          mv src/version.sh dist/version.sh
 
       - id: version
         name: Get version
-        run: |
-          RAW=v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
-          REG=^$(echo $RAW | sed 's/\./\\./g')$
-          NEW=$([ -z "$(git tag -l | grep -E $REG)" ] && echo "$RAW")
-          echo "::set-output name=tag::$RAW"
-          echo "::set-output name=new::$NEW"
+        run: src/version.sh
 
       - id: deploy
         name: Deploy
@@ -44,6 +41,8 @@ jobs:
           publish_branch: dist
           force_orphan: true
           enable_jekyll: true
+          user_name: GitHub Actions
+          user_email: actions@github.com
           tag_name: ${{ steps.version.outputs.new }}
 
       - name: Check out dist
