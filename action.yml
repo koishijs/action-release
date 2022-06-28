@@ -1,7 +1,12 @@
 name: Release Koishi Bot
-
 description: Pack and release your Koishi bot
 
 runs:
-  using: node16
-  main: index.js
+  using: composite
+  steps:
+    - id: version
+      run: ./version.sh
+
+    - id: pack
+      if: ${{ steps.version.outputs.new }}
+      run: node index.js

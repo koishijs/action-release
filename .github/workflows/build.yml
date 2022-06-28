@@ -12,7 +12,7 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
         with:
-          depth: 0
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -27,7 +27,7 @@ jobs:
 
       - id: version
         name: Get version
-        run: version.sh
+        run: ./version.sh
 
       - name: Move manifest
         run: |
@@ -40,18 +40,18 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist
-          publish_branch: dist
+          publish_branch: latest
           force_orphan: true
           enable_jekyll: true
           user_name: GitHub Actions
           user_email: actions@github.com
           tag_name: ${{ steps.version.outputs.new }}
 
-      - name: Check out dist
+      - name: Check out latest
         uses: actions/checkout@v3
         with:
-          ref: dist
-          depth: 0
+          ref: latest
+          fetch-depth: 0
 
       - name: Set user identity
         run: |
