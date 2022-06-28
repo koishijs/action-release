@@ -24,7 +24,7 @@ jobs:
       - id: version
         name: Get version
         run: |
-          REF = refs/tags/v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
+          REF=refs/tags/v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
           echo "::set-output name=ref::$REF"
       - id: tag
         name: Get tag
