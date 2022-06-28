@@ -25,27 +25,13 @@ jobs:
       - id: version
         name: Get version
         run: |
-          TAG=v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
+          RAW=v$(cat package.json | grep '"version":' | cut -d '"' -f 4)
+          REG=^$(echo $RAW | sed 's/\./\\./g')$
+          TAG=$([ -z "$(git tag -l | grep -E $REG)" ] || echo "$RAW")
           echo "::set-output name=tag::$TAG"
-
-      - id: tag
-        name: Get tag
-        uses: octokit/graphql-action@v2.x
-        with:
-          query: |
-            query {
-              repository(owner: "${{ github.event.repository.owner.name }}", name: "${{ github.event.repository.name }}") {
-                ref(qualifiedName: "refs/tags/${{ steps.version.outputs.tag }}") {
-                  name
-                }
-              }
-            }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - id: deploy
         name: Deploy
-        # if: ${{ !fromJSON(steps.tag.outputs.data).repository.ref }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
