@@ -1,5 +1,6 @@
 {
   "name": "@koishijs/action-pack",
+  "name": "release-koishi-bot",
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
