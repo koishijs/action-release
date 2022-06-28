@@ -6,7 +6,7 @@ import manifest from './shared'
 
 const token = getInput('github_token', { required: true })
 
-const { repo, sha } = context
+const { repo } = context
 const { rest } = getOctokit(token)
 
 function getArch() {
@@ -32,29 +32,18 @@ function getPlatform() {
 
 export default async function release() {
   const tag = `v${manifest.version}`
-  const res = await rest.git.createTag({
-    ...repo,
-    tag,
-    message: `Release ${manifest.version}`,
-    object: sha,
-    type: 'commit',
-  })
-  console.log(res)
+  const { data: release } = await rest.repos.getReleaseByTag({ ...repo, tag })
+  console.log(release)
+
+  const assetName = `${manifest.name}-${tag}-${getPlatform()}-${getArch()}.zip`
   try {
-    const { data: release } = await rest.repos.createRelease({
-      ...repo,
-      tag_name: tag,
-    })
-    console.log(release)
     await rest.repos.uploadReleaseAsset({
       ...repo,
       release_id: release.id,
-      name: `${manifest.name}_${getPlatform()}_${getArch()}.zip`,
+      name: assetName,
       data: await readFile(resolve(process.env.RUNNER_TEMP, 'bundle.zip')) as any,
     })
-  } catch (e) {
-    console.log(e)
-  }
+  } catch (error) {}
 }
 
 if (require.main === module) {

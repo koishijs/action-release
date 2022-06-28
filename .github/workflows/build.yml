@@ -26,12 +26,13 @@ jobs:
         run: yarn build
 
       - id: version
-        name: Get version
+        name: Check version
         run: bash build/version.sh
 
       - name: Move manifest
         run: |
           mv action.yml dist/action.yml
+          mv build/track.sh $RUNNER_TEMP/track.sh
 
       - id: deploy
         name: Deploy
@@ -52,15 +53,11 @@ jobs:
           ref: latest
           fetch-depth: 0
 
-      - name: Set user identity
+      - name: Track versions
         if: ${{ steps.version.outputs.tag }}
         run: |
           git config user.email "GitHub Actions"
           git config user.name "actions@github.com"
-
-      - name: Track versions
-        if: ${{ steps.version.outputs.tag }}
-        run: |
-          bash build/track.sh $(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1,2)
-          bash build/track.sh $(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1)
+          bash $RUNNER_TEMP/track.sh $(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1,2)
+          bash $RUNNER_TEMP/track.sh $(echo ${{ steps.version.outputs.tag }} | cut -d . -f 1)
           git push origin --tags
