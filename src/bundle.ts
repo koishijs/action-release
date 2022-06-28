@@ -1,5 +1,6 @@
 import { createWriteStream } from 'fs'
 import { resolve } from 'path'
+import manifest from './shared'
 import archiver from 'archiver'
 import globby from 'globby'
 
@@ -31,9 +32,13 @@ export default async function bundle() {
   const stream = createWriteStream(resolve(process.env.RUNNER_TEMP, 'bundle.zip'))
   const archive = archiver('zip', { zlib: { level: 9 } })
   archive.pipe(stream)
-  const cwd = process.cwd()
-  const white = await globby([...whitelist], { cwd, ignore: blacklist })
-  for (const file of white) {
+
+  const files = await globby([
+    ...whitelist,
+    ...manifest.files,
+  ], { ignore: blacklist })
+
+  for (const file of files) {
     archive.file(file, { name: file })
   }
   await archive.finalize()
