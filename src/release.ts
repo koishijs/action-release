@@ -4,7 +4,7 @@ import { resolve } from 'path'
 import { readFile } from 'fs/promises'
 import manifest from './shared'
 
-const token = getInput('github_token', { required: true })
+const token = getInput('token', { required: true })
 
 const { repo } = context
 const { rest } = getOctokit(token)

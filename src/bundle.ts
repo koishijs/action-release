@@ -11,10 +11,12 @@ const whitelist = [
   'LICENSE*',
   'yarn.lock',
   'node_modules',
+  '.yarnrc.yml',
 ]
 
 const blacklist = [
   '.git',
+  '.yarn',
   'CVS',
   '.svn',
   '.hg',
@@ -36,7 +38,10 @@ export default async function bundle() {
   const files = await globby([
     ...whitelist,
     ...manifest.files,
-  ], { ignore: blacklist })
+  ], {
+    ignore: blacklist,
+    dot: true,
+  })
 
   for (const file of files) {
     archive.file(file, { name: file })

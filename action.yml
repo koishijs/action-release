@@ -2,7 +2,7 @@ name: Release Koishi Bot
 description: Pack and release your Koishi bot
 
 inputs:
-  github_token:
+  token:
     description: Set a generated GITHUB_TOKEN for pushing to the remote branch.
     required: true
 
