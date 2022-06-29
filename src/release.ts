@@ -30,12 +30,15 @@ function getPlatform() {
   throw new Error(`Unsupported platform: ${process.platform}`)
 }
 
+function getNode() {
+  return 'node' + process.version.split('.')[0].slice(1)
+}
+
 export default async function release() {
   const tag = `v${manifest.version}`
   const { data: release } = await rest.repos.getReleaseByTag({ ...repo, tag })
-  console.log(release)
 
-  const assetName = `${manifest.name}-${tag}-${getPlatform()}-${getArch()}.zip`
+  const assetName = `${manifest.name}-${tag}-${getPlatform()}-${getArch()}-${getNode()}.zip`
   try {
     await rest.repos.uploadReleaseAsset({
       ...repo,
@@ -43,7 +46,9 @@ export default async function release() {
       name: assetName,
       data: await readFile(resolve(process.env.RUNNER_TEMP, 'bundle.zip')) as any,
     })
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 if (require.main === module) {
